@@ -1,4 +1,4 @@
-package org.example.POJO;
+package org.project.POJO;
 
 public class Student {
 	private int id;

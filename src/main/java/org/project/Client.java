@@ -1,7 +1,7 @@
-package org.example;
+package org.project;
 
-import org.example.POJO.Student;
-import org.example.POJO.Students;
+import org.project.POJO.Student;
+import org.project.POJO.Students;
 
 import java.io.*;
 import java.net.Socket;
@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Client {
-	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+	private static final String LINE_SEPARATOR = "\n";
 	private static final Scanner scanner = new Scanner(System.in);
 	private static Properties prop;
 
@@ -90,23 +90,23 @@ public class Client {
 			switch (option){
 				case 0:
 					System.out.println("List of Students:");
-					getAllStudents();
+					getAllStudents(students);
 					break;
 				case 1:
 					System.out.println("List of Students. Student name:");
-					getStudentsByName(scanner.nextLine());
+					getStudentsByName(students, scanner.nextLine());
 					break;
 				case 2:
 					System.out.println("Student information. Student id:");
-					getInformationById(Integer.parseInt(scanner.nextLine()));
+					getInformationById(students, Integer.parseInt(scanner.nextLine()));
 					break;
 				case 3:
 					System.out.println("Add a student. Student name:");
-					addNewStudent(scanner.nextLine());
+					addNewStudent(students, scanner.nextLine());
 					break;
 				case 4:
 					System.out.println("Delete a student. Student id:");
-					deleteStudentById(Integer.parseInt(scanner.nextLine()));
+					deleteStudentById(students, Integer.parseInt(scanner.nextLine()));
 					break;
 				case 5:
 					System.out.println("Update temp file.");
@@ -162,7 +162,7 @@ public class Client {
 		outputStream.write(bytes);
 	}
 
-	private static Students parseJSONtoJavaObject(String fileName) {
+	static Students parseJSONtoJavaObject(String fileName) {
 		Path path = Paths.get(fileName);
 		StringBuilder stringBuilder = new StringBuilder();
 
@@ -191,12 +191,12 @@ public class Client {
 		return students;
 	}
 
-	private static StringBuilder parseStudentsObjectToJson(){
+	static StringBuilder parseStudentsObjectToJson(Students students){
 		Student student;
 
 		StringBuilder stringBuilder = new StringBuilder("{\n" +
 				"  \"students\": [");
-		String studentString = "\t{\n" +
+		String studentString = "    {\n" +
 				"      \"id\": %d,\n" +
 				"      \"name\": \"%s\"\n" +
 				"    }";
@@ -217,6 +217,8 @@ public class Client {
 			stringBuilder.append(LINE_SEPARATOR);
 			stringBuilder.append(String.format(studentString, student.getId(), student.getName()));
 			stringBuilder.append(LINE_SEPARATOR);
+		} else{
+			stringBuilder.append(LINE_SEPARATOR);
 		}
 		stringBuilder.append(end);
 
@@ -224,7 +226,7 @@ public class Client {
 	}
 
 	private static void updateTempFile(){
-		StringBuilder stringBuilder = parseStudentsObjectToJson();
+		StringBuilder stringBuilder = parseStudentsObjectToJson(students);
 		try (PrintWriter pw = new PrintWriter(new FileOutputStream(tempFilePath, false))){
 			pw.println(stringBuilder);
 		} catch (FileNotFoundException e) {
@@ -233,7 +235,7 @@ public class Client {
 		System.out.println(stringBuilder);
 	}
 
-	private static List<Student> getStudentsByName(String studentName){
+	static List<Student> getStudentsByName(Students students, String studentName){
 		List<Student> s = students.getStudents();
 		List<Student> result = s.stream().filter(i -> i.getName().equals(studentName)).sorted(Comparator.comparing(Student::getId)).collect(Collectors.toList());
 		System.out.printf("Students with name \"%s\": ", studentName);
@@ -241,14 +243,14 @@ public class Client {
 		return result;
 	}
 
-	private static List<Student> getAllStudents(){
+	static List<Student> getAllStudents(Students students){
 		List<Student> s = students.getStudents();
 		List<Student> result = s.stream().sorted(Comparator.comparing(Student::getName).thenComparing(Student::getId)).collect(Collectors.toList());
 		System.out.println(result);
 		return result;
 	}
 
-	private static Student getInformationById(int studentId){
+	static Student getInformationById(Students students, int studentId){
 		List<Student> s = students.getStudents();
 		Student result = s.stream().filter(i -> i.getId() == studentId).findFirst().orElse(null);
 		System.out.printf("Information about the student with id #%d: ", studentId);
@@ -256,14 +258,15 @@ public class Client {
 		return result;
 	}
 
-	private static void addNewStudent(String newStudentName){
+	static Student addNewStudent(Students students, String newStudentName){
 		Student newStudent = new Student(students.findAvailableId(), newStudentName);
 		students.addStudent(newStudent);
 		System.out.println("Added a new student:");
 		System.out.println(newStudent);
+		return newStudent;
 	}
 
-	private static void deleteStudentById(int studentId){
+	static Student deleteStudentById(Students students, int studentId){
 		List<Student> s = students.getStudents();
 		Student deletedStudent = s.stream().filter(i -> i.getId() == studentId).findFirst().orElse(null);
 		if (students.getTakenIds().contains(studentId)){
@@ -271,6 +274,7 @@ public class Client {
 		}
 		System.out.printf("Deleted the student with id #%d:\n", studentId);
 		System.out.println(deletedStudent);
+		return deletedStudent;
 	}
 }
 

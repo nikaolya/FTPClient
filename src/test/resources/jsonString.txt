@@ -6,19 +6,11 @@
     },
     {
       "id": 2,
-      "name": "Nika"
+      "name": "Student2"
     },
     {
       "id": 3,
       "name": "Student3"
-    },
-    {
-      "id": 4,
-      "name": "Nika"
-    },
-    {
-      "id": 5,
-      "name": "Nika"
     }
   ]
 }

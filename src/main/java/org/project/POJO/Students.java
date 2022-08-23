@@ -1,7 +1,8 @@
-package org.example.POJO;
+package org.project.POJO;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -29,7 +30,7 @@ public class Students {
 		return ids.filter(i -> !getTakenIds().contains(i)).sorted().findFirst().getAsInt();
 	}
 
-	public List<Integer> getTakenIds(){
-		return students.stream().map(Student::getId).collect(Collectors.toList());
+	public Set<Integer> getTakenIds(){
+		return students.stream().map(Student::getId).collect(Collectors.toSet());
 	}
 }
